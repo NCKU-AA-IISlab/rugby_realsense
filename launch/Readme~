@@ -1,0 +1,21 @@
+
+The launch procedures of various modes
+
+## 1. Mapping (Rtabmap) based on VO
+$ roslaunch rugby_realsense r200_driver.launch
+$ roslaunch rugby_realsense rugby_base_pyserial_ekf.launch
+$ roslaunch rugby_realsense r200_rtabmap_mapping_vo.launch
+(optional)
+$ roslaunch rugby_realsense r200_naigation.launch
+
+## 2. Mapping (Rtabmap) based on wheel-imu odom
+$ roslaunch rugby_realsense r200_driver.launch
+$ roslaunch rugby_realsense rugby_base_pyserial_ekf.launch
+$ roslaunch rugby_realsense r200_rtabmap_mapping_ekf.launch
+(optional)
+$ roslaunch rugby_realsense r200_naigation.launch 
+
+## 3. Localization (amcl) based on r200
+$ roslaunch rugby_realsense r200_driver.launch
+$ roslaunch rugby_realsense rugby_base_pyserial_ekf.launch
+$ roslaunch rugby_realsense r200_amcl_dwa_ekf.launch

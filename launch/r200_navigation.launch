@@ -1,0 +1,59 @@
+<launch>
+  <!-- PCL Filter -->
+  <node pkg="nodelet" type="nodelet" name="pcl_manager" args="manager" output="screen" />
+  <!-- Run a VoxelGrid filter to clean NaNs and downsample the data -->
+  <node pkg="nodelet" type="nodelet" name="StatisticalOutlierRemoval" args="load pcl/StatisticalOutlierRemoval pcl_manager" output="screen">
+    <remap from="~input" to="/rtabmap/cloud_map" /> <!-- /rtabmap/cloud_map is from rtabmap -->
+    <remap from="~output" to="/pclfilter/cloud_map" />
+    <rosparam>
+      mean_k: 10
+      stddev: 1.0
+    </rosparam>
+  </node>
+
+  <!-- Pointcloud to laserscan --> 
+  <!-- for local costmap, under nodelet "pcl_manager" created above--> 
+  <node pkg="nodelet" type="nodelet" name="pointcloud_to_laserscan" args="load pointcloud_to_laserscan/pointcloud_to_laserscan_nodelet pcl_manager">
+  <!-- node pkg="pointcloud_to_laserscan" type="pointcloud_to_laserscan" name="pointcloud_to_laserscan" -->
+      <remap from="cloud_in" to="/pclfilter/cloud_map"/>
+      <remap from="scan" to="/pclfilter/scan"/>
+  </node>
+
+  <!-- Octomap Server -->
+  <node pkg="octomap_server" type="octomap_server_node" name="octomap_server" output="screen">
+    <param name="resolution" value="0.05" /> 
+    <param name="pointcloud_min_z" value="-0.05" />
+    <param name="pointcloud_max_z" value="3.0" />
+    <param name="occupancy_min_z" value="-0.05" />	
+    <param name="base_frame_id" value="base_link" />
+    <!-- remap from="cloud_in" to="/rtabmap/cloud_map" / -->
+    <remap from="cloud_in" to="/pclfilter/cloud_map" />
+  </node> 
+  
+  <node pkg="tf" type="static_transform_publisher" name="rugby2base" args="0 0 0 0 0 0 rugby_base base_link 50" />
+
+  <!-- Navigation Stack -->
+  <remap from="map" to="/projected_map"/> <!-- projected_map is publishing by octomap -->
+  <arg name="odom_topic" default="rugby/odom_ekf" />
+  
+  <!-- Starting move_base node -->
+  <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen" clear_params="true">
+  	<param name="base_local_planner" value="dwa_local_planner/DWAPlannerROS" />
+  	<!-- common parameters of global costmap -->
+    <rosparam file="$(find rugby_realsense)/launch/param/global_costmap_common_params.yaml" command="load" ns="global_costmap" />
+    <!-- common parameters of local costmap -->
+    <rosparam file="$(find rugby_realsense)/launch/param/local_costmap_common_params.yaml" command="load" ns="local_costmap" />
+    <!-- local cost map parameters -->
+    <rosparam file="$(find rugby_realsense)/launch/param/local_costmap_params_ekf.yaml" command="load" />
+    <!-- global cost map parameters -->
+    <rosparam file="$(find rugby_realsense)/launch/param/global_costmap_params.yaml" command="load" />
+    <!-- base local planner parameters -->
+    <!-- rosparam file="$(find rugby)/param/base_local_planner_params.yaml" command="load" /-->
+    <!-- dwa local planner parameters -->
+    <rosparam file="$(find rugby_realsense)/launch/param/dwa_base_local_planner_params.yaml" command="load" />
+
+    <!--remap from="cmd_vel" to="navigation_velocity_smoother/raw_cmd_vel"/-->
+    <remap from="odom" to="$(arg odom_topic)"/>
+    <remap from="cmd_vel" to="/rugby/cmd_vel" />
+  </node>
+</launch>

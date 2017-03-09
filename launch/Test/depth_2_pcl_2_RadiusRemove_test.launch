@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+
+<launch>
+	<!-- Depth to laserscan (depth->pd->filter->laser) -->
+	<!-- nodelet manager -->
+	<node pkg="nodelet" type="nodelet" name="depth_manager" args="manager" output="screen" />
+
+	<!-- Depth to pointcloud -->
+	<node pkg="nodelet" type="nodelet" name="point_cloud_xyz" args="load depth_image_proc/point_cloud_xyz depth_manager" output="screen">
+		<remap from="camera_info" to="/camera/depth_registered/sw_registered/camera_info" /> 
+		<remap from="image_rect" to="/camera/depth_registered/sw_registered/image_rect_raw" />
+		<remap from="points" to="/fake_scan/depth2points" />
+	</node>
+	
+	<!-- PCL pointcloud filter -->
+	<node pkg="nodelet" type="nodelet" name="RadiusOutlierRemoval" args="load pcl/RadiusOutlierRemoval depth_manager" output="screen">
+		<remap from="~input" to="/fake_scan/depth2points" /> 
+		<remap from="~output" to="/fake_scan/filter_points" />
+	</node>
+
+	<!-- Pointcloud to laserscan --> 
+	<!-- for local costmap, under nodelet "pcl_manager" created above--> 
+	<node pkg="nodelet" type="nodelet" name="pointcloud_to_laserscan" args="load pointcloud_to_laserscan/pointcloud_to_laserscan_nodelet depth_manager">
+		<remap from="cloud_in" to="/fake_scan/filter_points"/>
+		<!--remap from="scan" to="scan"/-->
+	</node>
+</launch>
