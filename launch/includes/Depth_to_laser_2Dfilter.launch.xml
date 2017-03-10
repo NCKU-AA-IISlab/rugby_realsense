@@ -24,7 +24,7 @@
 		<!-- node pkg="pointcloud_to_laserscan" type="pointcloud_to_laserscan" name="pointcloud_to_laserscan" -->
 		<remap from="cloud_in" to="/fake_scan/depth2points"/>
 		<remap from="scan" to="/fake_scan/scan_middle"/>
-		<param name="min_height" value="-0.3" /> 
+		<param name="min_height" value="-0.2" /> 
 		<param name="max_height" value="0.1" /> 
 		<param name="angle_min" value="-0.7" /> 
 		<param name="angle_max" value="0.7" /> 
