@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<launch>
+ <!-- change this next line to include the launch file for your robot's hardware drivers: -->
+
+
+  <!-- urdf xml robot description loaded on the Parameter Server-->
+	<param name="robot_description" command="$(find xacro)/xacro '$(find rugby)/modeldescription/urdf/rugby.xacro'" />
+	
+	<!-- Robot parameters -->
+	<param name="wheelSeparation" value="0.245"></param>
+	<param name="wheelRadius" value="0.0475"></param>
+	<param name="rate" value="10"></param>  
+	
+	<!-- Starting Joint state publisher node which will publish the joint values -->
+	<node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" />
+	<!-- Starting robot state publisher -->
+	<node name="robot_state_publisher" pkg="robot_state_publisher" type="state_publisher">
+		<param name="publish_frequency" type="double" value="50.0"></param></node>
+		
+	<node name="rugby_base" pkg="rugby" type="rugby_base_pyserial_ekf.py" output="screen"/>
+ 	 
+ 	<!-- Starting robot_pose_ekf nodes -->
+	<include file="$(find rugby_realsense)/launch/includes/robot_pose_ekf.launch.xml" />
+
+</launch>

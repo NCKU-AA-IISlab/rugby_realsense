@@ -1,0 +1,36 @@
+<launch>
+  <!-- Depth to laserscan (depth->pd->laser->pd->filter->laser) -->
+  <include file="$(find rugby_realsense)/launch/includes/Depth_to_laser_2Dfilter.launch.xml">
+	<arg name="depth_registered_camera_info"  value="/camera/depth_registered/sw_registered/camera_info" />
+	<arg name="depth_registered_image_rect"   value="/camera/depth_registered/sw_registered/image_rect_raw" />
+	<arg name="scan_frame"  value="camera_link" />
+	<arg name="scan_topic"  value="scan" />
+  </include>
+
+  <node pkg="tf" type="static_transform_publisher" name="Lidar2Camera" args="0 0 0 3.1415926 0 0 rugby_rplidar camera_link 10" />
+
+  <!-- Navigation Stack -->
+  <remap from="map" to="/projected_map"/> <!-- projected_map is publishing by octomap -->
+  <arg name="odom_topic" default="rugby/odom_ekf" />
+  
+  <!-- Starting move_base node -->
+  <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen" clear_params="true">
+    <param name="base_local_planner" value="dwa_local_planner/DWAPlannerROS" />
+    <!-- common parameters of global costmap -->
+    <rosparam file="$(find rugby_realsense)/launch/param/global_costmap_common_params.yaml" command="load" ns="global_costmap" />
+    <!-- common parameters of local costmap -->
+    <rosparam file="$(find rugby_realsense)/launch/param/local_costmap_common_params.yaml" command="load" ns="local_costmap" />
+    <!-- local cost map parameters -->
+    <rosparam file="$(find rugby_realsense)/launch/param/local_costmap_params_ekf.yaml" command="load" />
+    <!-- global cost map parameters -->
+    <rosparam file="$(find rugby_realsense)/launch/param/global_costmap_params.yaml" command="load" />
+    <!-- base local planner parameters -->
+    <!-- rosparam file="$(find rugby)/param/base_local_planner_params.yaml" command="load" /-->
+    <!-- dwa local planner parameters -->
+    <rosparam file="$(find rugby_realsense)/launch/param/dwa_base_local_planner_params.yaml" command="load" />
+
+    <!--remap from="cmd_vel" to="navigation_velocity_smoother/raw_cmd_vel"/-->
+    <remap from="odom" to="$(arg odom_topic)"/>
+    <remap from="cmd_vel" to="/rugby/cmd_vel" />
+  </node>
+</launch>

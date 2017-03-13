@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<package>
+  <name>rugby_realsense</name>
+  <version>0.0.0</version>
+  <description>The rugby_realsense package</description>
+
+  <maintainer email="f44006076@gmail.com">HaoChih LiN</maintainer>
+  <license>BSD</license>
+
+  <export>
+    <nodelet plugin="${prefix}/nodelet_plugins.xml" />
+  </export>
+
+  <buildtool_depend>catkin</buildtool_depend>
+  <build_depend>roscpp</build_depend>
+  <build_depend>rospy</build_depend>
+  <build_depend>sensor_msgs</build_depend>
+  <build_depend>pcl_conversions</build_depend>
+
+  <run_depend>nodelet</run_depend>
+  <run_depend>roscpp</run_depend>
+  <run_depend>rospy</run_depend>
+
+</package>

@@ -1,0 +1,29 @@
+<launch>
+  <!-- Parameters -->
+  <arg name="CloudMap_inputs"   default="/rtabmap/cloud_map"/>
+  <arg name="FilterMap_output"  default="/pclfilter/cloud_map"/>
+  <arg name="octo_z_max" default="3.0"/>
+  <arg name="octo_z_min" default="-0.05"/>
+  <arg name="octo_resolution" default="0.05"/>
+
+  <!-- PCL Filter -->
+  <node pkg="nodelet" type="nodelet" name="pcl_manager" args="manager" output="screen" />
+  <node pkg="nodelet" type="nodelet" name="StatisticalOutlierRemoval" args="load pcl/StatisticalOutlierRemoval pcl_manager" output="screen">
+    <remap from="~input" to="$(arg CloudMap_inputs)" /> <!-- /rtabmap/cloud_map is from rtabmap -->
+    <remap from="~output" to="$(arg FilterMap_output)" />
+    <rosparam>
+      mean_k: 10
+      stddev: 1.0
+    </rosparam>
+  </node>
+
+  <!-- Octomap Server -->
+  <node pkg="octomap_server" type="octomap_server_node" name="octomap_server" output="screen">
+    <param name="resolution" value="0.05" /> 
+    <param name="pointcloud_min_z" value="$(arg octo_z_min)" />
+    <param name="pointcloud_max_z" value="$(arg octo_z_max)" />
+    <param name="occupancy_min_z" value="$(arg octo_z_min)" />	
+    <param name="resolution" value="$(arg octo_resolution)" />	
+    <remap from="cloud_in" to="$(arg FilterMap_output)" />
+  </node> 
+</launch>
