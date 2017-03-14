@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+
+<launch>
+	<!-- R200 driver -->
+	<include file="$(find rugby_realsense)/launch/r200_driver.launch" />
+
+	<!-- rugby pyserial driver -->
+	<include file="$(find rugby_realsense)/launch/rugby_base_pyserial_ekf.launch" />
+</launch>
