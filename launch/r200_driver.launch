@@ -18,8 +18,8 @@
   <arg name="color_height"    default="240" />
   <arg name="depth_width"     default="332" />
   <arg name="depth_height"    default="252" />
-  <arg name="depth_fps"       default="60" />
-  <arg name="color_fps"       default="60" />
+  <arg name="depth_fps"       default="30" />
+  <arg name="color_fps"       default="30" />
   <arg name="auto_white_balance" default="0" /> <!-- 0/1 ; true/false -->
 
   <!-- Arguments for remapping all device namespaces -->

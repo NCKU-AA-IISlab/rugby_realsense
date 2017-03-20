@@ -1,16 +1,14 @@
 
 <launch>
-  <!-- Your RGB-D sensor should be already started with "depth_registration:=true".
-        Examples:
-           $ roslaunch freenect_launch freenect.launch depth_registration:=true 
-           $ roslaunch openni2_launch openni2.launch depth_registration:=true -->
- 
+  <!-- ************************* -->
+  <!-- *****RtabMap Setting***** -->
+  <!-- ************************* -->
   <!-- Choose visualization -->
   <arg name="rviz"                    default="false" />
   <arg name="rtabmapviz"              default="false" /> 
   
   <!-- Localization-only mode -->
-  <arg name="localization"            default="true"/>
+  <arg name="localization"            default="false"/>
   
   <!-- Corresponding config files -->
   <arg name="rtabmapviz_cfg"          default="-d $(find rtabmap_ros)/launch/config/rgbd_gui.ini" />
@@ -19,8 +17,8 @@
   <arg name="frame_id"                default="camera_link"/>   <!-- Fixed frame id, you may set "base_link" or "base_footprint" if they are published -->
   <arg name="time_threshold"          default="0"/>             <!-- (ms) If not 0 ms, memory management is used to keep processing time on this fixed limit. -->
   <arg name="optimize_from_last_node" default="false"/>         <!-- Optimize the map from the last node. Should be true on multi-session mapping and when time threshold is set -->
-  <arg name="database_path"           default="~/.ros/rtabmap_0316-1.db"/>
-  <arg name="rtabmap_args"            default=""/>              <!-- delete_db_on_start, udebug -->
+  <arg name="database_path"           default="~/.ros/rtabmap.db"/>
+  <arg name="rtabmap_args"            default="--delete_db_on_start"/>              <!-- delete_db_on_start, udebug -->
   <arg name="launch_prefix"           default=""/>              <!-- for debugging purpose, it fills launch-prefix tag of the nodes -->
    
   <arg name="rgb_topic"               default="/camera/color/image_rect_color" />
@@ -49,7 +47,7 @@
   
     <!-- Odometry -->
     <!-- Subscribe the /rugby/odom_ekf from Rugby wheel odometry fused with imu -->
-    <node pkg="tf" type="static_transform_publisher" name="RugbyBase2camera" args="-0.035 -0.03 0.28 0 0 0 rugby_base camera_link 50" />
+    <node pkg="tf" type="static_transform_publisher" name="RugbyBase2camera" args="-0.035 -0.03 0.28 0 0 0 rugby_base camera_link 10" />
   
     <!-- Visual SLAM (robot side) -->
     <node name="rtabmap" pkg="rtabmap_ros" type="rtabmap" output="screen" args="$(arg rtabmap_args)" launch-prefix="$(arg launch_prefix)">
@@ -72,30 +70,44 @@
 	<param name="Mem/SaveDepth16Format"        type="string" value="$(arg convert_depth_to_mm)"/>
 	<param name="Grid/DepthDecimation"         type="string" value="4"/>
 	<param name="Grid/FlatObstacleDetected"    type="string" value="true"/>
-	<param name="Kp/MaxFeatures"               type="string" value="1000"/>
+	<param name="Kp/MaxFeatures"               type="string" value="2000"/>
 	<param name="Kp/MaxDepth"                  type="string" value="10"/>
 	<param name="Kp/DetectorStrategy"          type="string" value="2"/>   <!-- "0=SURF 1=SIFT 2=ORB 3=FAST/FREAK 4=FAST/BRIEF 5=GFTT/FREAK 6=GFTT/BRIEF 7=BRISK 8=GFTT/ORB 9=FREAK."-->
 	<param name="Vis/EstimationType"           type="string" value="0"/>   <!-- 0=3D->3D, 1=3D->2D (PnP) -->
 	<param name="Vis/MaxDepth"                 type="string" value="10"/>
-	<param name="Vis/FeatureType"		   type="string" value="6" /> <!-- "0=SURF 1=SIFT 2=ORB 3=FAST/FREAK 4=FAST/BRIEF 5=GFTT/FREAK 6=GFTT/BRIEF 7=BRISK 8=GFTT/ORB 9=FREAK.") -->
+	<param name="Vis/FeatureType"		   type="string" value="8" /> <!-- "0=SURF 1=SIFT 2=ORB 3=FAST/FREAK 4=FAST/BRIEF 5=GFTT/FREAK 6=GFTT/BRIEF 7=BRISK 8=GFTT/ORB 9=FREAK.") -->
 	<param name="Vis/MaxFeatures"               type="string" value="2000"/>
+	<param name="Reg/Strategy"        type="string"  value="2"/> <!-- 0=Vis, 1=Icp, 2=VisIcp -->
+	<param name="Rtabmap/DetectionRate" type="string" value="2"/>	
+
+	<!-- ORB -->
+	<param name="ORB/EdgeThreshold"   type="string"  value="25"/>
+	<param name="ORB/PatchSize"       type="string"  value="25"/>
+
+	<!-- GFTT -->
+	<param name="GFTT/QualityLevel"       type="string"  value="0.005"/>
 
 	<!-- localization mode -->
 	<param     if="$(arg localization)" name="Mem/IncrementalMemory" type="string" value="false"/>
 	<param unless="$(arg localization)" name="Mem/IncrementalMemory" type="string" value="true"/>
 	<param name="Mem/InitWMWithAllNodes" type="string" value="$(arg localization)"/>
-	<param name="Rtabmap/DetectionRate" type="string" value="5"/>
 
 	<!-- when 2D scan is set -->
-	<param if="$(arg subscribe_scan)" name="Optimizer/Slam2D"        type="string" value="true"/>
-	<param if="$(arg subscribe_scan)" name="Icp/CorrespondenceRatio" type="string" value="0.25"/>
-	<param if="$(arg subscribe_scan)" name="Reg/Strategy"            type="string" value="1"/> 
+	<!-- param if="$(arg subscribe_scan)" name="Optimizer/Slam2D"        type="string" value="true"/ -->
+	<!-- param if="$(arg subscribe_scan)" name="Icp/CorrespondenceRatio" type="string" value="0.25"/ -->
+	<param if="$(arg subscribe_scan)" name="Reg/Strategy"            type="string" value="0"/> <!-- 0=Vis, 1=Icp, 2=VisIcp -->
 	<param if="$(arg subscribe_scan)" name="Reg/Force3DoF"           type="string" value="true"/>
 
 	<!-- when 3D scan is set -->
 	<param if="$(arg subscribe_scan_cloud)" name="Reg/Strategy"      type="string" value="1"/>
     </node>
-   
   </group>
   
+  <!-- ************************ -->
+  <!-- *****Octomap server***** -->
+  <!-- ************************ -->
+  <include file="$(find rugby_realsense)/launch/includes/Pointcloud_to_Octomap.launch.xml">
+	<arg name="octo_z_max"  value="0.5" />
+	<arg name="octo_z_min"  value="-0.05" />
+  </include>
 </launch>
