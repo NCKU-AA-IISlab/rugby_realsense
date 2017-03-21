@@ -45,7 +45,7 @@
 	  <param name="laser_max_beams"             value="60"/>
 	  <param name="laser_max_range"           value="-1"/>
 	  <param name="min_particles"             value="800"/>
-	  <param name="max_particles"             value="15000"/>
+	  <param name="max_particles"             value="5000"/>
 	  <param name="kld_err"                   value="0.1"/>
 	  <param name="kld_z"                     value="0.9"/>
 	  <param name="odom_alpha1"               value="0.2"/>
