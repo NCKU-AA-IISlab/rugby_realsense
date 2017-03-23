@@ -1,7 +1,13 @@
 <?xml version="1.0"?>
 
 <launch>
-
+	<!-- gy-85 driver --> 
+	<arg name="razor_config_file" default="$(find rugby_realsense)/launch/param/rugby_gy85.yaml"/>
+  	<node pkg="rugby_realsense" type="imu_node.py" name="imu_node" output="screen">
+    	  <rosparam file="$(arg razor_config_file)" command="load"/>
+  	</node>	
+	
+	<!-- robot pose ekf -->
 	<node pkg="robot_pose_ekf" type="robot_pose_ekf" name="robot_pose_ekf">
 	  <param name="output_frame" value="odom"/>
 	  <param name="base_footprint_frame" value="rugby_base"/>
@@ -11,15 +17,11 @@
 	  <param name="imu_used" value="true"/>
 	  <param name="vo_used" value="false"/>
 	  <param name="publish_tf" value="true"/>
-	<!--
-	 <remap from="odom" to="pr2_base_odometry/odom" />
-	 -->
 	  <remap from="odom" to="rugby/odom" />
-	  <remap from="robot_pose_ekf/odom_combined" to="rugby/odom_combined"/>
-	
+	  <remap from="robot_pose_ekf/odom_combined" to="rugby/odom_combined"/>	
 	</node>
-	<!-- node pkg="robot_pose_ekf" type="gyro_node.py" name="gyro_node"/-->
-	<node pkg="robot_pose_ekf" type="mpu6050.py" name="mpu6050" />		
+	
+	<!-- posestamp to odometry -->
 	<node pkg="robot_pose_ekf" type="odom_ekf.py" name="odom_ekf" />
 
 </launch>

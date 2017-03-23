@@ -12,13 +12,17 @@ find_package(catkin REQUIRED COMPONENTS
   pcl_conversions
   pcl_msgs
   laser_geometry
+  dynamic_reconfigure
 )
 
 find_package(PCL 1.7 REQUIRED)
 
+generate_dynamic_reconfigure_options(cfg/imu.cfg)
+
 catkin_package(
     INCLUDE_DIRS
     LIBRARIES ${PROJECT_NAME}
+    dynamic_reconfigure
 )
 
 ###########
@@ -29,9 +33,17 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
 )
 
+# For nodelets
 add_library(${PROJECT_NAME}  src/nodelets/PointCloudSetValid.cpp
 			     src/nodelets/LaserToPointCloud.cpp  )
 target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES} ${PCL_LIBRARIES} )
+
+# For python nodes
+catkin_install_python(PROGRAMS 
+	src/python/imu_node.py
+	src/python/display_3D_visualization.py
+        DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/src/python
+)
 
 #############
 ## Install ##

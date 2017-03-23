@@ -1,6 +1,13 @@
+# Dependency
+To successfully execute this package, several necessary pkg have to be compiled first:
+## 1. rugby
+## 2. realsense (ros)
+## 3. rtabmap_ros
+## 4. robot_pose_ekf
 
+
+# Demo
 The launch procedures of various modes
-
 ## 1. Mapping (Rtabmap) based on VO
 $ roslaunch rugby_realsense r200_driver.launch
 $ roslaunch rugby_realsense rugby_base_pyserial_ekf.launch

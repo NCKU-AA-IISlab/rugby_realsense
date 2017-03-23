@@ -1,0 +1,11 @@
+## USB port
+port: /dev/gyro
+
+## Frame if
+frame_id: rugby_gy85_link
+
+##### Calibration ####
+### gyroscope
+gyro_average_offset_x: 3.41
+gyro_average_offset_y: 23.16
+gyro_average_offset_z: -12.27
