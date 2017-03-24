@@ -307,6 +307,6 @@ while not rospy.is_shutdown():
         #rospy.spin()#keeps python from exiting    
     except:
 	rospy.logwarn("Error in Sensor values")
-	pass
+	#pass
 ser.close
 #f.close

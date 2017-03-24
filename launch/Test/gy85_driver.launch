@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+
+<launch>
+	<!-- gy-85 driver --> 
+	<arg name="razor_config_file" default="$(find rugby_realsense)/launch/param/rugby_gy85.yaml"/>
+  	<node pkg="rugby_realsense" type="imu_node.py" name="imu_node" output="screen">
+    	  <rosparam file="$(arg razor_config_file)" command="load"/>
+  	</node>	
+
+</launch>
+
